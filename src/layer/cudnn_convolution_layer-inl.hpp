@@ -47,6 +47,12 @@ class CuDNNConvolutionLayer<gpu> : public ConvolutionLayer<gpu> {
       else if(!strcmp(val, "balance")) use_fast_algo_ = false;
       else utils::Error("Unkown convolution algo mode");
     }
+    if (!strcmp(name, "ngroup")) {
+        if (atoi(val) != 1) {
+            utils::Error("Currently implementation does not support group when using CuDNN.\
+                    Please disable CuDNN and try again.");
+        }
+    }
   }
   virtual void Forward(bool is_train,
                        const std::vector<Node<gpu>*> &nodes_in,
@@ -90,8 +96,8 @@ class CuDNNConvolutionLayer<gpu> : public ConvolutionLayer<gpu> {
                                                          &workspace_size_) == CUDNN_STATUS_SUCCESS, "cudnn failed");
       temp_.Resize(mshadow::Shape1(workspace_size_ / sizeof(float) + 1), 0.0f);
     }
-    utils::Assert(nodes_in[0]->data.CheckContiguous(), "contiguous in conv");
-    utils::Assert(nodes_out[0]->data.CheckContiguous(), "contiguous in conv");
+    CHECK(nodes_in[0]->data.CheckContiguous());
+    CHECK(nodes_out[0]->data.CheckContiguous());
     utils::Check(cudnnConvolutionForward(handle_, &alpha,
                                        in_desc_, nodes_in[0]->data.dptr_,
                                        filter_desc_, Parent::wmat_.dptr_,

@@ -14,7 +14,7 @@ options 2 =
 ...
 iter = end
 ```
-* The basic iterator type is **mnist** , **image** , **imgbin**, **csv**
+* The basic iterator type is **mnist** , **image** , **imgrec**, **csv**
 * To use thread buffer, declare in this form
 ```bash
 iter = iterator_type
@@ -36,7 +36,7 @@ iter = end
 ```bash
 shuffle = 1
 ```
-* **shuffle** set 1 to shuffle the **training data**. Note that this option **does not** apply to  **imgbin** and **csv**.
+* **shuffle** set 1 to shuffle the **training data**. Note that this option **does not** apply to **csv**.
 
 =
 ### MNIST Iterator
@@ -83,12 +83,13 @@ A valid image list file is like the following (NO header):
 Image binary iterator aims to reduce to IO cost in random seek. It is especially useful when deal with large amount for data like in ImageNet.
 * Required field
 ```bash
+image_rec = path to the image binary file
+# The image list file can be removed, if only single label exists. It is a must in the multi-label case.
 image_list = path to the image list file
-image_bin = path to the image binary file
 ```
 * The **image_list** file is described [above](#image-list-file)
-* To generate **image_bin** file, you need to use the tool [im2bin](https://github.com/antinucleon/cxxnet/blob/master/tools/im2bin.cpp) in the tools folder.
-* You may check an example [here](https://github.com/antinucleon/cxxnet/blob/master/example/ImageNet/ImageNet.conf)
+* To generate **image_rec** file, you need to use the tool [im2rec](../tools/im2rec.cc) in the tools folder.
+* You may check examples [here](../example/ImageNet/)
 
 #### Realtime Preprocessing Option for Image/Image Binary
 ```bash
@@ -131,7 +132,7 @@ Deterministic transformations are usually used in test to generate diverse predi
 
 =
 ### CSV Iterator
-This iterator can be used to read data files that stores in a raw CSV file. The CSV file should have the following data structure ```label(s) | other_columns```. The number of label columns can be controlled via ```label_width``` parameter, by default it is set to 1, i.e. first column of CSV file is treated as labels. Example:
+This iterator can be used to read data files that stores in a raw CSV file. The CSV file should have the following data structure ```label(s) , other_columns```. The number of label columns can be controlled via ```label_width``` parameter, by default it is set to 1, i.e. first column of CSV file is treated as labels. Example:
 ```bash
 iter = csv
 filename = "train.csv"

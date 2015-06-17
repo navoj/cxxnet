@@ -8,6 +8,7 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <dmlc/logging.h>
 #include <mshadow/tensor.h>
 #include "../global.h"
 #include "../utils/utils.h"
@@ -62,7 +63,7 @@ struct Node {
   inline void AllocSpace(void) {
     if (must_contiguous) {
       mshadow::AllocSpace(&data, false);
-      utils::Assert(data.CheckContiguous(), "contiguous");
+      CHECK(data.CheckContiguous());
     } else {
       mshadow::AllocSpace(&data);
     }
@@ -311,6 +312,7 @@ const int kChConcat = 28;
 const int kPRelu = 29;
 const int kBatchNorm = 30;
 const int kFixConnect = 31;
+const int kBatchNorm_no_ma = 32;
 /*! \brief gap used to encode pairtest layer */
 const int kPairTestGap = 1024;
 /*! \brief use integer to encode layer types */
@@ -342,12 +344,14 @@ inline LayerType GetLayerType(const char *type) {
   if (!strcmp(type, "maxout")) return kMaxout;
   if (!strcmp(type, "split")) return kSplit;
   if (!strcmp(type, "insanity")) return kInsanity;
+  if (!strcmp(type, "rrelu")) return kInsanity;
   if (!strcmp(type, "insanity_max_pooling")) return kInsanityPooling;
   if (!strcmp(type, "lp_loss") || !strcmp(type, "l2_loss")) return kLpLoss;
   if (!strcmp(type, "multi_logistic")) return kMultiLogistic;
   if (!strcmp(type, "ch_concat")) return kChConcat;
   if (!strcmp(type, "prelu")) return kPRelu;
   if (!strcmp(type, "batch_norm")) return kBatchNorm;
+  if (!strcmp(type, "batch_norm_no_ma")) return kBatchNorm_no_ma;
   #if CXXNET_USE_CAFFE_ADAPTOR
   if (!strcmp(type, "caffe")) return kCaffe;
   #endif
